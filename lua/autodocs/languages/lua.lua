@@ -158,26 +158,26 @@ function M.format(data, _style, indent)
   local lines = {}
   local tabstop = 0
 
-  local function next_ts()
+  local function ts(label)
     tabstop = tabstop + 1
-    return "$" .. tabstop
+    return "${" .. tabstop .. ":" .. label .. "}"
   end
 
   -- Summary line
-  table.insert(lines, indent .. "--- " .. next_ts())
+  table.insert(lines, indent .. "--- " .. ts("_summary_"))
 
   -- Parameters
   for _, param_name in ipairs(data.params) do
     if param_name == "..." then
-      table.insert(lines, indent .. "--- @vararg " .. next_ts())
+      table.insert(lines, indent .. "--- @vararg " .. ts("_type_"))
     else
-      table.insert(lines, indent .. "--- @param " .. param_name .. " " .. next_ts() .. " " .. next_ts())
+      table.insert(lines, indent .. "--- @param " .. param_name .. " " .. ts("_type_") .. " " .. ts("_description_"))
     end
   end
 
   -- Return
   if data.has_return then
-    table.insert(lines, indent .. "--- @return " .. next_ts() .. " " .. next_ts())
+    table.insert(lines, indent .. "--- @return " .. ts("_type_") .. " " .. ts("_description_"))
   end
 
   return lines

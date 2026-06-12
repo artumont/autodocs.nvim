@@ -159,7 +159,7 @@ test("format google generates valid snippet", function()
   assert(joined:match("RuntimeError"), "should contain RuntimeError")
   assert(joined:match("Returns:"), "should contain Returns section")
   assert(joined:match("bool"), "should contain return type bool")
-  assert(joined:match("%$1"), "should contain snippet tabstop $1")
+  assert(joined:match("%${1:_summary_}"), "should contain snippet tabstop ${1:_summary_}")
   vim.api.nvim_buf_delete(bufnr, { force = true })
 end)
 

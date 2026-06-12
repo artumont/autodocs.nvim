@@ -383,9 +383,23 @@ end
 
 --- Snippet tabstop counter (managed per format call)
 local _tabstop = 0
-local function next_tabstop()
+
+--- Create a tabstop with a placeholder label: ${N:label}
+--- @param label string Placeholder text shown inside the tabstop
+--- @return string
+local function tabstop(label)
   _tabstop = _tabstop + 1
-  return "$" .. _tabstop
+  return "${" .. _tabstop .. ":" .. label .. "}"
+end
+
+--- Shorthand for a summary placeholder
+local function summary_tabstop()
+  return tabstop("_summary_")
+end
+
+--- Shorthand for a description placeholder
+local function desc_tabstop()
+  return tabstop("_description_")
 end
 
 local function reset_tabstops()
@@ -400,7 +414,7 @@ local function format_google_function(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop() .. "")
+  table.insert(lines, indent .. '"""' .. summary_tabstop() .. "")
 
   if #data.params > 0 then
     table.insert(lines, "")
@@ -409,7 +423,7 @@ local function format_google_function(data, indent)
       local type_hint = p.type and (" (" .. p.type .. ")") or ""
       local default_hint = p.default and (". Defaults to " .. p.default .. ".") or ""
       table.insert(lines,
-        indent .. "    " .. p.name .. type_hint .. ": " .. next_tabstop() .. default_hint)
+        indent .. "    " .. p.name .. type_hint .. ": " .. desc_tabstop() .. default_hint)
     end
   end
 
@@ -417,7 +431,7 @@ local function format_google_function(data, indent)
     table.insert(lines, "")
     table.insert(lines, indent .. "Raises:")
     for _, exc in ipairs(data.raises) do
-      table.insert(lines, indent .. "    " .. exc .. ": " .. next_tabstop())
+      table.insert(lines, indent .. "    " .. exc .. ": " .. desc_tabstop())
     end
   end
 
@@ -425,7 +439,7 @@ local function format_google_function(data, indent)
     table.insert(lines, "")
     table.insert(lines, indent .. "Returns:")
     local rtype = data.return_type and (data.return_type .. ": ") or ""
-    table.insert(lines, indent .. "    " .. rtype .. next_tabstop())
+    table.insert(lines, indent .. "    " .. rtype .. desc_tabstop())
   end
 
   table.insert(lines, indent .. '"""')
@@ -440,17 +454,17 @@ local function format_numpy_function(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop())
+  table.insert(lines, indent .. '"""' .. summary_tabstop())
 
   if #data.params > 0 then
     table.insert(lines, "")
     table.insert(lines, indent .. "Parameters")
     table.insert(lines, indent .. "----------")
     for _, p in ipairs(data.params) do
-      local type_hint = p.type or next_tabstop()
+      local type_hint = p.type or tabstop("_type_")
       table.insert(lines, indent .. p.name .. " : " .. type_hint)
       local default_hint = p.default and (" (default: " .. p.default .. ")") or ""
-      table.insert(lines, indent .. "    " .. next_tabstop() .. default_hint)
+      table.insert(lines, indent .. "    " .. desc_tabstop() .. default_hint)
     end
   end
 
@@ -460,7 +474,7 @@ local function format_numpy_function(data, indent)
     table.insert(lines, indent .. "------")
     for _, exc in ipairs(data.raises) do
       table.insert(lines, indent .. exc)
-      table.insert(lines, indent .. "    " .. next_tabstop())
+      table.insert(lines, indent .. "    " .. desc_tabstop())
     end
   end
 
@@ -468,9 +482,9 @@ local function format_numpy_function(data, indent)
     table.insert(lines, "")
     table.insert(lines, indent .. "Returns")
     table.insert(lines, indent .. "-------")
-    local rtype = data.return_type or next_tabstop()
+    local rtype = data.return_type or tabstop("_type_")
     table.insert(lines, indent .. rtype)
-    table.insert(lines, indent .. "    " .. next_tabstop())
+    table.insert(lines, indent .. "    " .. desc_tabstop())
   end
 
   table.insert(lines, indent .. '"""')
@@ -485,13 +499,13 @@ local function format_sphinx_function(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop())
+  table.insert(lines, indent .. '"""' .. summary_tabstop())
 
   if #data.params > 0 then
     table.insert(lines, "")
     for _, p in ipairs(data.params) do
       table.insert(lines,
-        indent .. ":param " .. p.name .. ": " .. next_tabstop())
+        indent .. ":param " .. p.name .. ": " .. desc_tabstop())
       if p.type then
         table.insert(lines,
           indent .. ":type " .. p.name .. ": " .. p.type)
@@ -501,12 +515,12 @@ local function format_sphinx_function(data, indent)
 
   if #data.raises > 0 then
     for _, exc in ipairs(data.raises) do
-      table.insert(lines, indent .. ":raises " .. exc .. ": " .. next_tabstop())
+      table.insert(lines, indent .. ":raises " .. exc .. ": " .. desc_tabstop())
     end
   end
 
   if data.has_return then
-    table.insert(lines, indent .. ":returns: " .. next_tabstop())
+    table.insert(lines, indent .. ":returns: " .. desc_tabstop())
     if data.return_type then
       table.insert(lines, indent .. ":rtype: " .. data.return_type)
     end
@@ -524,21 +538,21 @@ local function format_simple_function(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop())
+  table.insert(lines, indent .. '"""' .. summary_tabstop())
 
   if #data.params > 0 then
     table.insert(lines, "")
     for _, p in ipairs(data.params) do
       local type_hint = p.type and (" (" .. p.type .. ")") or ""
       table.insert(lines,
-        indent .. "- " .. p.name .. type_hint .. ": " .. next_tabstop())
+        indent .. "- " .. p.name .. type_hint .. ": " .. desc_tabstop())
     end
   end
 
   if data.has_return then
     table.insert(lines, "")
     local rtype = data.return_type and (" (" .. data.return_type .. ")") or ""
-    table.insert(lines, indent .. "Returns" .. rtype .. ": " .. next_tabstop())
+    table.insert(lines, indent .. "Returns" .. rtype .. ": " .. desc_tabstop())
   end
 
   table.insert(lines, indent .. '"""')
@@ -553,13 +567,13 @@ local function format_google_class(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop())
+  table.insert(lines, indent .. '"""' .. summary_tabstop())
 
   if #data.attributes > 0 then
     table.insert(lines, "")
     table.insert(lines, indent .. "Attributes:")
     for _, attr in ipairs(data.attributes) do
-      table.insert(lines, indent .. "    " .. attr .. ": " .. next_tabstop())
+      table.insert(lines, indent .. "    " .. attr .. ": " .. desc_tabstop())
     end
   end
 
@@ -575,16 +589,16 @@ local function format_numpy_class(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop())
+  table.insert(lines, indent .. '"""' .. summary_tabstop())
 
   if #data.init_params and #data.init_params > 0 then
     table.insert(lines, "")
     table.insert(lines, indent .. "Parameters")
     table.insert(lines, indent .. "----------")
     for _, p in ipairs(data.init_params) do
-      local type_hint = p.type or next_tabstop()
+      local type_hint = p.type or tabstop("_type_")
       table.insert(lines, indent .. p.name .. " : " .. type_hint)
-      table.insert(lines, indent .. "    " .. next_tabstop())
+      table.insert(lines, indent .. "    " .. desc_tabstop())
     end
   end
 
@@ -593,8 +607,8 @@ local function format_numpy_class(data, indent)
     table.insert(lines, indent .. "Attributes")
     table.insert(lines, indent .. "----------")
     for _, attr in ipairs(data.attributes) do
-      table.insert(lines, indent .. attr .. " : " .. next_tabstop())
-      table.insert(lines, indent .. "    " .. next_tabstop())
+      table.insert(lines, indent .. attr .. " : " .. tabstop("_type_"))
+      table.insert(lines, indent .. "    " .. desc_tabstop())
     end
   end
 
@@ -610,12 +624,12 @@ local function format_sphinx_class(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop())
+  table.insert(lines, indent .. '"""' .. summary_tabstop())
 
   if #data.init_params and #data.init_params > 0 then
     table.insert(lines, "")
     for _, p in ipairs(data.init_params) do
-      table.insert(lines, indent .. ":param " .. p.name .. ": " .. next_tabstop())
+      table.insert(lines, indent .. ":param " .. p.name .. ": " .. desc_tabstop())
       if p.type then
         table.insert(lines, indent .. ":type " .. p.name .. ": " .. p.type)
       end
@@ -634,12 +648,12 @@ local function format_simple_class(data, indent)
   reset_tabstops()
   local lines = {}
 
-  table.insert(lines, indent .. '"""' .. next_tabstop())
+  table.insert(lines, indent .. '"""' .. summary_tabstop())
 
   if #data.attributes > 0 then
     table.insert(lines, "")
     for _, attr in ipairs(data.attributes) do
-      table.insert(lines, indent .. "- " .. attr .. ": " .. next_tabstop())
+      table.insert(lines, indent .. "- " .. attr .. ": " .. desc_tabstop())
     end
   end
 
