@@ -325,6 +325,17 @@ function M.parse(bufnr, row)
     local raises = extract_raises(construct, bufnr)
     local has_return = has_return_value(construct, bufnr) or return_type ~= nil
 
+    -- Apply return type exclusions (e.g. "None")
+    if return_type then
+      local excluded = config.get_excluded_returns("python")
+      for _, r in ipairs(excluded) do
+        if r == return_type then
+          has_return = false
+          break
+        end
+      end
+    end
+
     return {
       kind = "function",
       name = name,

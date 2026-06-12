@@ -163,6 +163,20 @@ test("format google generates valid snippet", function()
   vim.api.nvim_buf_delete(bufnr, { force = true })
 end)
 
+test("excludes None return type", function()
+  local bufnr = create_python_buf({
+    "def example(a: int) -> None:",
+    "    pass",
+  })
+  local data = py.parse(bufnr, 1)
+  assert(data, "expected parsed data")
+  assert(data.has_return == false, "expected has_return to be false for None return type")
+  local lines = py.format(data, "google", "    ")
+  local joined = table.concat(lines, "\n")
+  assert(not joined:match("Returns:"), "should not contain Returns section")
+  vim.api.nvim_buf_delete(bufnr, { force = true })
+end)
+
 print(string.rep("-", 50))
 print(string.format("Results: %d passed, %d failed", passed, failed))
 

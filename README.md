@@ -70,6 +70,12 @@ require("autodocs").setup({
     python = { "self", "cls" },
     lua = {},
   },
+
+  -- Return types to exclude from generation
+  exclude_returns = {
+    python = { "None" },
+    lua = {},
+  },
 })
 ```
 

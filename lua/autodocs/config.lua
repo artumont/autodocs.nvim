@@ -34,6 +34,12 @@ M.defaults = {
     python = { "self", "cls" },
     lua = {},
   },
+
+  --- Return types to automatically exclude from generated docstrings
+  exclude_returns = {
+    python = { "None" },
+    lua = {},
+  },
 }
 
 --- @type autodocs.Config
@@ -83,6 +89,13 @@ end
 --- @return string[]
 function M.get_excluded_params(filetype)
   return M.options.exclude_params[filetype] or {}
+end
+
+--- Get the excluded return types for a given filetype
+--- @param filetype string
+--- @return string[]
+function M.get_excluded_returns(filetype)
+  return M.options.exclude_returns[filetype] or {}
 end
 
 return M
