@@ -29,18 +29,6 @@ use {
 }
 ```
 
-```lua
-return {
-  {
-    "artumont/autodocs.nvim",
-    dependencies = { "saghen/blink.cmp" },
-    opts = {
-      style = "google",
-    },
-  }
-}
-```
-
 Add the source to your `blink.cmp` configuration:
 
 ```lua
