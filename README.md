@@ -2,9 +2,32 @@
 
 Treesitter-powered documentation block generator with blink.cmp integration.
 
-## Usage
+## Installation
 
-Configure with `lazy.nvim`:
+Using [lazy.nvim](https://github.com/folke/lazy.nvim)
+
+```lua
+{
+  "artumont/autodocs.nvim",
+  dependencies = { "saghen/blink.cmp" },
+  opts = {
+    style = "google",
+  },
+}
+```
+
+Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
+
+```lua
+use {
+  "artumont/autodocs.nvim",
+  config = function()
+    require("autodocs").setup({
+      style = "google",
+    })
+  end,
+}
+```
 
 ```lua
 return {
