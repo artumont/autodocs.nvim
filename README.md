@@ -35,6 +35,8 @@ require("blink.cmp").setup({
 })
 ```
 
+And if you dont have your treesitter language installed, install it using `:TSInstall <language>`
+
 ## Features
 
 - **Treesitter AST Parsing**: Resolves function definitions, parameter names, types, defaults, raises, and class attributes.
